@@ -29,6 +29,7 @@ MainTab:CreateToggle({
          task.wait(1)
          -- Gọi hàm farm ở đây
          print("Đang auto farm...")
+         -- Thêm mã farm của bạn ở đây, ví dụ: gọi các hàm auto-farming khác
       end
    end
 })
@@ -42,7 +43,8 @@ MainTab:CreateButton({
       }
       task.spawn(function()
          local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))(Settings)
+            -- Đã sửa đường dẫn raw GitHub cho đúng
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
          end)
          if not success then
             Rayfield:Notify({
@@ -97,7 +99,7 @@ ServerTab:CreateButton({
             end
          end
          Cursor = Servers.nextPageCursor
-         task.wait(0.2)
+         task.wait(0.2) -- Tránh spam request
       until FoundServer or not Cursor
 
       if FoundServer then

@@ -1,115 +1,78 @@
--- Tải Rayfield UI
-loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+-- Tải Akiri UI
+loadstring(game:HttpGet("https://raw.githubusercontent.com/drillygzzly/Roblox-UI-Libs/main/Akiri%20Lib/Akiri%20Lib%20Source.lua"))()
 
-local Window = Rayfield:CreateWindow({
-   Name = "KT Hub | Blox Fruits",
-   LoadingTitle = "KT Hub Loading...",
-   LoadingSubtitle = "Đang khởi động...",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = "KTFarm", -- Lưu cấu hình
-      FileName = "KTFarm_Config"
-   },
-   Discord = {
-      Enabled = false
-   },
-   KeySystem = false
+-- Tạo cửa sổ
+local Window = Akiri:Create({
+    Title = "KT Hub | Blox Fruits",
+    Subtitle = "by shikarimaster19",
+    TabSize = 120
 })
 
 -- Tab Auto Farm
-local MainTab = Window:CreateTab("🏴‍☠️ Auto Farm", 4483362458)
+local FarmTab = Window:Tab("🏴‍☠️ Auto Farm")
 
-MainTab:CreateToggle({
-   Name = "Tự động Farm Level",
-   CurrentValue = false,
-   Flag = "AutoFarm",
-   Callback = function(Value)
-      _G.AutoFarm = Value
-      while _G.AutoFarm do
-         task.wait(1)
-         -- Gọi hàm farm ở đây
-         print("Đang auto farm...")
-         -- Thêm mã farm của bạn ở đây, ví dụ: gọi các hàm auto-farming khác
-      end
-   end
-})
+FarmTab:Toggle("Tự động Farm Level", false, function(Value)
+    _G.AutoFarm = Value
+    while _G.AutoFarm do
+        task.wait(1)
+        print("Đang auto farm...")
+    end
+end)
 
-MainTab:CreateButton({
-   Name = "Chạy Redz Hub",
-   Callback = function()
-      local Settings = {
-         JoinTeam = "Pirates",
-         Translator = true
-      }
-      task.spawn(function()
-         local success, err = pcall(function()
-            -- Đã sửa đường dẫn raw GitHub cho đúng
+FarmTab:Button("Chạy Redz Hub", function()
+    local Settings = {
+        JoinTeam = "Pirates",
+        Translator = true
+    }
+    task.spawn(function()
+        local success, err = pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
-         end)
-         if not success then
-            Rayfield:Notify({
-               Title = "KT Hub",
-               Content = "Không thể chạy Redz Hub!",
-               Duration = 5
-            })
-         end
-      end)
-   end
-})
+        end)
+        if not success then
+            Akiri:Notify("Lỗi", "Không thể chạy Redz Hub", 5)
+        end
+    end)
+end)
 
 -- Tab Server
-local ServerTab = Window:CreateTab("🌐 Server Tools", 4483362444)
+local ServerTab = Window:Tab("🌐 Server Tools")
 
-ServerTab:CreateButton({
-   Name = "Server Hop (Tìm server vắng)",
-   Callback = function()
-      Rayfield:Notify({
-         Title = "KT Hub",
-         Content = "Đang tìm server phù hợp...",
-         Duration = 3
-      })
+ServerTab:Button("Server Hop (Tìm server vắng)", function()
+    Akiri:Notify("KT Hub", "Đang tìm server phù hợp...", 3)
 
-      local Http = game:GetService("HttpService")
-      local TPS = game:GetService("TeleportService")
-      local Players = game:GetService("Players")
-      local PlaceId = game.PlaceId
-      local CurrentJobId = game.JobId
-      local ApiUrl = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+    local Http = game:GetService("HttpService")
+    local TPS = game:GetService("TeleportService")
+    local Players = game:GetService("Players")
+    local PlaceId = game.PlaceId
+    local CurrentJobId = game.JobId
+    local ApiUrl = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
 
-      local function GetServers(cursor)
-         local url = ApiUrl .. ((cursor and "&cursor="..cursor) or "")
-         local response = game:HttpGet(url)
-         return Http:JSONDecode(response)
-      end
+    local function GetServers(cursor)
+        local url = ApiUrl .. ((cursor and "&cursor="..cursor) or "")
+        local response = game:HttpGet(url)
+        return Http:JSONDecode(response)
+    end
 
-      local FoundServer = nil
-      local Cursor = nil
+    local FoundServer = nil
+    local Cursor = nil
 
-      repeat
-         local Servers = GetServers(Cursor)
-         for _, server in ipairs(Servers.data) do
+    repeat
+        local Servers = GetServers(Cursor)
+        for _, server in ipairs(Servers.data) do
             local playerCount = server.playing or 0
             local serverId = server.id
-
             if serverId ~= CurrentJobId and playerCount <= 1 then
-               FoundServer = server
-               if playerCount == 0 then
-                  break
-               end
+                FoundServer = server
+                if playerCount == 0 then break end
             end
-         end
-         Cursor = Servers.nextPageCursor
-         task.wait(0.2) -- Tránh spam request
-      until FoundServer or not Cursor
+        end
+        Cursor = Servers.nextPageCursor
+        task.wait(0.2)
+    until FoundServer or not Cursor
 
-      if FoundServer then
-         TPS:TeleportToPlaceInstance(PlaceId, FoundServer.id, Players.LocalPlayer)
-      else
-         Rayfield:Notify({
-            Title = "KT Hub",
-            Content = "Không tìm thấy server phù hợp!",
-            Duration = 4
-         })
-      end
-   end
-})
+    if FoundServer then
+        TPS:TeleportToPlaceInstance(PlaceId, FoundServer.id, Players.LocalPlayer)
+    else
+        Akiri:Notify("KT Hub", "Không tìm thấy server phù hợp!", 4)
+    end
+end)

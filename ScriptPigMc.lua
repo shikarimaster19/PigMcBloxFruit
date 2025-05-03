@@ -1,37 +1,45 @@
--- Tải thư viện Kavo UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kavo-UI/Library/main/source.lua"))()
 local Window = Library.CreateLib("KT Hub | Blox Fruits", "Midnight")
 
--- Tab Auto Farm
+-- Auto Farm Tab
 local AutoFarmTab = Window:NewTab("Auto Farm")
 local AutoFarmSection = AutoFarmTab:NewSection("Farm Level")
 
-AutoFarmSection:NewToggle("Tự động Farm Level", "Tự farm quái theo level", function(state)
+AutoFarmSection:NewToggle("Tự động Farm Level", "Tự farm theo level", function(state)
     _G.AutoFarm = state
-    while _G.AutoFarm do
-        task.wait(1)
-        print("Đang auto farm...")
+    if state then
+        print("AutoFarm bật")
+        while _G.AutoFarm do
+            task.wait(1)
+            print("Đang auto farm...")
+        end
+    else
+        print("AutoFarm tắt")
     end
 end)
 
-AutoFarmSection:NewButton("Chạy Redz Hub", "Chạy script Redz", function()
+AutoFarmSection:NewButton("Chạy Redz Hub", "Gọi script Redz", function()
+    print("Đang chạy Redz Hub...")
     local Settings = {
         JoinTeam = "Pirates",
         Translator = true
     }
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
+    task.spawn(function()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
+        end)
+        if not success then
+            warn("Không thể chạy Redz Hub!", err)
+        end
     end)
-    if not success then
-        warn("Không thể chạy Redz Hub:", err)
-    end
 end)
 
--- Tab Server Tools
+-- Server Tab
 local ServerTab = Window:NewTab("Server Tools")
-local ServerSection = ServerTab:NewSection("Server Hop")
+local ServerSection = ServerTab:NewSection("Server Tools")
 
-ServerSection:NewButton("Tìm Server Vắng", "Tự động chuyển server vắng", function()
+ServerSection:NewButton("Server Hop", "Tìm server vắng", function()
+    print("Đang tìm server vắng...")
     local Http = game:GetService("HttpService")
     local TPS = game:GetService("TeleportService")
     local Players = game:GetService("Players")
@@ -53,7 +61,6 @@ ServerSection:NewButton("Tìm Server Vắng", "Tự động chuyển server vắ
         for _, server in ipairs(Servers.data) do
             local playerCount = server.playing or 0
             local serverId = server.id
-
             if serverId ~= CurrentJobId and playerCount <= 1 then
                 FoundServer = server
                 if playerCount == 0 then
@@ -68,6 +75,6 @@ ServerSection:NewButton("Tìm Server Vắng", "Tự động chuyển server vắ
     if FoundServer then
         TPS:TeleportToPlaceInstance(PlaceId, FoundServer.id, Players.LocalPlayer)
     else
-        warn("Không tìm thấy server phù hợp (0-1 người).")
+        warn("Không tìm thấy server phù hợp!")
     end
 end)

@@ -1,72 +1,59 @@
--- Tải Kavo UI
-local KavoUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kavo-UI/Library/main/source.lua"))()
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+local Window = OrionLib:MakeWindow({Name = "KT Hub | Blox Fruits", HidePremium = false, SaveConfig = true, ConfigFolder = "KTFarm", IntroEnabled = true, IntroText = "KT Hub Loading..."})
 
-local Window = KavoUI:CreateWindow({
-    Title = "KT Hub | Blox Fruits",
-    Subtitle = "Blox Fruits Auto Farm",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "KT_Hub",
-        FileName = "KT_Hub_Config"
-    },
-    Discord = {
-        Enabled = false
-    },
-    KeySystem = false
+-- Auto Farm Tab
+local FarmTab = Window:MakeTab({
+    Name = "🏴‍☠️ Auto Farm",
+    Icon = "rbxassetid://4483362458",
+    PremiumOnly = false
 })
 
--- Tạo Tab Auto Farm
-local MainTab = Window:CreateTab("🏴‍☠️ Auto Farm", 4483362458)
-
--- Toggle tự động farm level
-MainTab:CreateToggle({
+FarmTab:AddToggle({
     Name = "Tự động Farm Level",
-    CurrentValue = false,
-    Flag = "AutoFarm",
+    Default = false,
     Callback = function(Value)
         _G.AutoFarm = Value
         while _G.AutoFarm do
             task.wait(1)
-            -- Gọi hàm farm ở đây
             print("Đang auto farm...")
         end
     end
 })
 
--- Tạo nút chạy Redz Hub
-MainTab:CreateButton({
+FarmTab:AddButton({
     Name = "Chạy Redz Hub",
     Callback = function()
         local Settings = {
             JoinTeam = "Pirates",
             Translator = true
         }
-        task.spawn(function()
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))(Settings)
-            end)
-            if not success then
-                KavoUI:Notify({
-                    Title = "KT Hub",
-                    Content = "Không thể chạy Redz Hub!",
-                    Duration = 5
-                })
-            end
+        local success, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))(Settings)
         end)
+        if not success then
+            OrionLib:MakeNotification({
+                Name = "KT Hub",
+                Content = "Không thể chạy Redz Hub!",
+                Time = 5
+            })
+        end
     end
 })
 
--- Tab Server Tools
-local ServerTab = Window:CreateTab("🌐 Server Tools", 4483362444)
+-- Server Tab
+local ServerTab = Window:MakeTab({
+    Name = "🌐 Server Tools",
+    Icon = "rbxassetid://4483362444",
+    PremiumOnly = false
+})
 
--- Tạo nút tìm server vắng
-ServerTab:CreateButton({
+ServerTab:AddButton({
     Name = "Server Hop (Tìm server vắng)",
     Callback = function()
-        KavoUI:Notify({
-            Title = "KT Hub",
+        OrionLib:MakeNotification({
+            Name = "KT Hub",
             Content = "Đang tìm server phù hợp...",
-            Duration = 3
+            Time = 3
         })
 
         local Http = game:GetService("HttpService")
@@ -90,12 +77,9 @@ ServerTab:CreateButton({
             for _, server in ipairs(Servers.data) do
                 local playerCount = server.playing or 0
                 local serverId = server.id
-
                 if serverId ~= CurrentJobId and playerCount <= 1 then
                     FoundServer = server
-                    if playerCount == 0 then
-                        break
-                    end
+                    if playerCount == 0 then break end
                 end
             end
             Cursor = Servers.nextPageCursor
@@ -105,35 +89,14 @@ ServerTab:CreateButton({
         if FoundServer then
             TPS:TeleportToPlaceInstance(PlaceId, FoundServer.id, Players.LocalPlayer)
         else
-            KavoUI:Notify({
-                Title = "KT Hub",
+            OrionLib:MakeNotification({
+                Name = "KT Hub",
                 Content = "Không tìm thấy server phù hợp!",
-                Duration = 4
+                Time = 4
             })
         end
     end
 })
 
--- Tạo nút bật/tắt menu
-local ToggleMenu = false
-ServerTab:CreateButton({
-    Name = "Tắt/Bật Menu",
-    Callback = function()
-        ToggleMenu = not ToggleMenu
-        if ToggleMenu then
-            Window:Toggle()
-            KavoUI:Notify({
-                Title = "KT Hub",
-                Content = "Menu đã bật!",
-                Duration = 2
-            })
-        else
-            Window:Toggle()
-            KavoUI:Notify({
-                Title = "KT Hub",
-                Content = "Menu đã tắt!",
-                Duration = 2
-            })
-        end
-    end
-})
+-- Toggle UI bằng RightShift
+OrionLib:Init()

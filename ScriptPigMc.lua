@@ -1,45 +1,37 @@
--- Tải Akiri UI
-loadstring(game:HttpGet("https://raw.githubusercontent.com/drillygzzly/Roblox-UI-Libs/main/Akiri%20Lib/Akiri%20Lib%20Source.lua"))()
-
--- Tạo cửa sổ
-local Window = Akiri:Create({
-    Title = "KT Hub | Blox Fruits",
-    Subtitle = "by shikarimaster19",
-    TabSize = 120
-})
+-- Tải thư viện Kavo UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("KT Hub | Blox Fruits", "Midnight")
 
 -- Tab Auto Farm
-local FarmTab = Window:Tab("🏴‍☠️ Auto Farm")
+local AutoFarmTab = Window:NewTab("Auto Farm")
+local AutoFarmSection = AutoFarmTab:NewSection("Farm Level")
 
-FarmTab:Toggle("Tự động Farm Level", false, function(Value)
-    _G.AutoFarm = Value
+AutoFarmSection:NewToggle("Tự động Farm Level", "Tự farm quái theo level", function(state)
+    _G.AutoFarm = state
     while _G.AutoFarm do
         task.wait(1)
         print("Đang auto farm...")
     end
 end)
 
-FarmTab:Button("Chạy Redz Hub", function()
+AutoFarmSection:NewButton("Chạy Redz Hub", "Chạy script Redz", function()
     local Settings = {
         JoinTeam = "Pirates",
         Translator = true
     }
-    task.spawn(function()
-        local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
-        end)
-        if not success then
-            Akiri:Notify("Lỗi", "Không thể chạy Redz Hub", 5)
-        end
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
     end)
+    if not success then
+        warn("Không thể chạy Redz Hub:", err)
+    end
 end)
 
--- Tab Server
-local ServerTab = Window:Tab("🌐 Server Tools")
+-- Tab Server Tools
+local ServerTab = Window:NewTab("Server Tools")
+local ServerSection = ServerTab:NewSection("Server Hop")
 
-ServerTab:Button("Server Hop (Tìm server vắng)", function()
-    Akiri:Notify("KT Hub", "Đang tìm server phù hợp...", 3)
-
+ServerSection:NewButton("Tìm Server Vắng", "Tự động chuyển server vắng", function()
     local Http = game:GetService("HttpService")
     local TPS = game:GetService("TeleportService")
     local Players = game:GetService("Players")
@@ -61,9 +53,12 @@ ServerTab:Button("Server Hop (Tìm server vắng)", function()
         for _, server in ipairs(Servers.data) do
             local playerCount = server.playing or 0
             local serverId = server.id
+
             if serverId ~= CurrentJobId and playerCount <= 1 then
                 FoundServer = server
-                if playerCount == 0 then break end
+                if playerCount == 0 then
+                    break
+                end
             end
         end
         Cursor = Servers.nextPageCursor
@@ -73,6 +68,6 @@ ServerTab:Button("Server Hop (Tìm server vắng)", function()
     if FoundServer then
         TPS:TeleportToPlaceInstance(PlaceId, FoundServer.id, Players.LocalPlayer)
     else
-        Akiri:Notify("KT Hub", "Không tìm thấy server phù hợp!", 4)
+        warn("Không tìm thấy server phù hợp (0-1 người).")
     end
 end)
